@@ -20,7 +20,7 @@ export const start = async () => {
   app.post("/", async (req, res) => {
     console.log(req);
 
-    const data = JSON.stringify(req.body, null, 2);
+    const data = JSON.stringify(req, null, 2);
     const fileName = `request_${Date.now()}.txt`;
 
     fs.writeFile(fileName, data, async (err) => {
