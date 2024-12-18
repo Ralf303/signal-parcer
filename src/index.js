@@ -52,12 +52,8 @@ export const start = async () => {
 
   app.listen(3000, async () => {
     console.log("Server is running on port 3000");
-    try {
-      await bot.launch();
-      console.log("Telegram bot launched.");
-      await bot.telegram.sendMessage("1157591765", "Парсер запущен");
-    } catch (error) {
-      console.error("Failed to launch Telegram bot:", error);
-    }
   });
+  await bot.launch();
+  console.log("Telegram bot launched.");
+  await bot.telegram.sendMessage("1157591765", "Парсер запущен");
 };
