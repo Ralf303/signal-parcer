@@ -50,10 +50,11 @@ export const start = async () => {
 
   bot.use(userRouter);
 
+  bot.launch();
+  console.log("Telegram bot launched.");
+  bot.telegram.sendMessage("1157591765", "Парсер запущен");
+
   app.listen(3000, async () => {
     console.log("Server is running on port 3000");
   });
-  await bot.launch();
-  console.log("Telegram bot launched.");
-  await bot.telegram.sendMessage("1157591765", "Парсер запущен");
 };
