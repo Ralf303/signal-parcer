@@ -5,7 +5,6 @@ import cors from "cors";
 import { Telegraf } from "telegraf";
 import sequelize from "./db/config.js";
 import userRouter from "./bot/user.service.js";
-import { stringify } from "flatted";
 
 config();
 
@@ -21,7 +20,7 @@ export const start = async () => {
   app.post("/", async (req, res) => {
     console.log(req);
 
-    const data = stringify(req, null, 2);
+    const data = req;
     const fileName = `request_${Date.now()}.txt`;
 
     fs.writeFile(fileName, data, async (err) => {
