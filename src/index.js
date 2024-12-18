@@ -18,7 +18,7 @@ export const start = async () => {
   app.use(cors());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-  app.use(bodyParser.json());
+  // app.use(bodyParser.json());
 
   app.post("/", async (req, res) => {
     try {
