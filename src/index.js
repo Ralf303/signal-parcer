@@ -6,6 +6,7 @@ import { Telegraf } from "telegraf";
 import sequelize from "./db/config.js";
 import userRouter from "./bot/user.service.js";
 import { stringify } from "flatted";
+import bodyParser from "body-parser";
 
 config();
 
@@ -17,25 +18,25 @@ export const start = async () => {
   app.use(cors());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+  app.use(bodyParser.json());
 
   app.post("/", async (req, res) => {
-    console.log(req);
-
-    const data = stringify(req);
-    const fileName = `request_${Date.now()}.txt`;
-
-    fs.writeFile(fileName, data, async (err) => {
-      if (err) {
-        return res.status(500).send("Error writing file");
+    try {
+      console.log(req.body);
+      const data = req.body;
+      const result = await bot.telegram.sendMessage(
+        "1157591765",
+        JSON.stringify(data, null, 2)
+      );
+      if (result) {
+        res.send("Data received and processed!");
+      } else {
+        res.status(500).send("Error processing data");
       }
-
-      await bot.telegram.sendDocument("1157591765", {
-        source: fileName,
-        filename: fileName,
-      });
-
-      res.send("Data saved and file sent!");
-    });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("An error occurred while processing the request.");
+    }
   });
 
   app.get("/", (req, res) => {
@@ -51,7 +52,12 @@ export const start = async () => {
 
   app.listen(3000, async () => {
     console.log("Server is running on port 3000");
-    bot.telegram.sendMessage("1157591765", "Парсер запущен");
+    try {
+      await bot.launch();
+      console.log("Telegram bot launched.");
+      await bot.telegram.sendMessage("1157591765", "Парсер запущен");
+    } catch (error) {
+      console.error("Failed to launch Telegram bot:", error);
+    }
   });
-  await bot.launch();
 };
