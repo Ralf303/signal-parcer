@@ -1,13 +1,18 @@
 import { config } from "dotenv";
 import express from "express";
-import fs from "fs";
 import cors from "cors";
-import { Telegraf } from "telegraf";
+import { Scenes, session, Telegraf } from "telegraf";
 import sequelize from "./db/config.js";
 import userRouter from "./bot/user.service.js";
-import { stringify } from "flatted";
-import bodyParser from "body-parser";
+import rateLimit from "telegraf-ratelimit";
+import paramScene from "./bot/scenes/param.scene.js";
+import adminService from "./bot/admin.service.js";
+import { getVerifieUsers } from "./db/functions.js";
+import { sleep } from "./bot/utils.js";
+import messageScene from "./bot/scenes/message.scene.js";
+import verifScene from "./bot/scenes/verif.scene.js";
 
+const stage = new Scenes.Stage([paramScene, messageScene, verifScene]);
 config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -18,16 +23,37 @@ export const start = async () => {
   app.use(cors());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-  // app.use(bodyParser.json());
 
   app.post("/", async (req, res) => {
     try {
-      console.log(req.body);
       const data = req.body;
-      const result = await bot.telegram.sendMessage(
-        "1157591765",
-        JSON.stringify(data, null, 2)
-      );
+
+      const signal = data?.text;
+
+      const now = new Date();
+      const dayOfWeek = now.getDay();
+      const hour = now.getHours();
+      const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+      const isWithinTimeFrame = hour >= 6 && hour <= 22;
+
+      if (signal && isWeekday && isWithinTimeFrame) {
+        const text = `НОВЫЙ СИГНАЛ:\n\n${signal}`;
+        await bot.telegram.sendMessage("1157591765", data);
+
+        const users = await getVerifieUsers();
+        for (const user of users) {
+          try {
+            await ctx.telegram.sendMessage(user.chatId, text, {
+              entities: parse,
+            });
+
+            await sleep(500);
+          } catch (error) {
+            continue;
+          }
+        }
+      }
+
       if (result) {
         res.send("Data received and processed!");
       } else {
@@ -43,16 +69,25 @@ export const start = async () => {
     res.send("Hello World!");
   });
 
-  // await sequelize.authenticate();
-  // console.log("Connection has been established successfully.");
-  // await sequelize.sync();
-  // console.log("All models were synchronized successfully.");
+  await sequelize.authenticate();
+  console.log("Connection has been established successfully.");
+  await sequelize.sync();
+  console.log("All models were synchronized successfully.");
 
+  bot.use(session());
+  bot.use(stage.middleware());
+  bot.use(
+    rateLimit({
+      window: 1000,
+      limit: 5,
+    })
+  );
   bot.use(userRouter);
+  bot.use(adminService);
 
   bot.launch();
   console.log("Telegram bot launched.");
-  bot.telegram.sendMessage("1157591765", "Парсер запущен");
+  await bot.telegram.sendMessage("1157591765", "Парсер запущен");
 
   app.listen(3000, async () => {
     console.log("Server is running on port 3000");

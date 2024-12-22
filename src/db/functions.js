@@ -11,7 +11,7 @@ async function getUser(chatId, newUsername) {
         isVerified: false,
       });
     } else {
-      if (user.username !== newUsername) {
+      if (newUsername && user.username !== newUsername) {
         user.username = newUsername;
         await user.save();
       }
@@ -23,4 +23,35 @@ async function getUser(chatId, newUsername) {
   }
 }
 
-export default getUser;
+async function verifyUser(chatId) {
+  try {
+    const user = await User.findOne({ where: { chatId } });
+
+    if (user) {
+      user.isVerified = true;
+      await user.save();
+    }
+  } catch (error) {
+    console.error("Error verifying user:", error);
+  }
+}
+
+async function getVerifieUsers() {
+  try {
+    const users = await User.findAll({ where: { isVerified: true } });
+    return users;
+  } catch (error) {
+    console.error("Error sending message to all users:", error);
+  }
+}
+
+async function getUsers() {
+  try {
+    const users = await User.findAll();
+    return users;
+  } catch (error) {
+    console.error("Error sending message to all users:", error);
+  }
+}
+
+export { getUser, verifyUser, getVerifieUsers, getUsers };
