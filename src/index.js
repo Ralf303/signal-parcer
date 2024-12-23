@@ -35,19 +35,16 @@ export const start = async () => {
       const hour = now.getHours();
       const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
       const isWithinTimeFrame = hour >= 6 && hour <= 22;
-      console.log(signal);
 
       if (signal && isWeekday && isWithinTimeFrame) {
         const text = `НОВЫЙ СИГНАЛ:\n\n${signal}`;
         await bot.telegram.sendMessage("1157591765", JSON.stringify(data));
 
         const users = await getVerifieUsers();
-        console.log(users.length);
-        console.log(text);
 
         for (const user of users) {
           try {
-            await ctx.telegram.sendMessage(user.chatId, text);
+            await bot.telegram.sendMessage(user.chatId, text);
 
             await sleep(500);
           } catch (error) {
