@@ -43,9 +43,7 @@ export const start = async () => {
         const users = await getVerifieUsers();
         for (const user of users) {
           try {
-            await ctx.telegram.sendMessage(user.chatId, text, {
-              entities: parse,
-            });
+            await ctx.telegram.sendMessage(user.chatId, text);
 
             await sleep(500);
           } catch (error) {
