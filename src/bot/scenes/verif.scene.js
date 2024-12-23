@@ -13,6 +13,8 @@ verifScene.enter(async (ctx) => {
 
 verifScene.on(message("text"), async (ctx) => {
   try {
+    await ctx.scene.leave();
+
     await ctx.telegram.sendMessage(
       "1157591765",
       `НОВАЯ ЗАЯВКА:\n\nЮзер: @${ctx.from.username}\nid юзера: ${ctx.from.id}\nКод: ${ctx.message.text}`,
@@ -62,6 +64,7 @@ verifScene.on(message("text"), async (ctx) => {
     await ctx.scene.leave();
     await ctx.reply("Заявка отправлена на проверку");
   } catch (error) {
+    await ctx.scene.leave();
     console.log(error);
   }
 });

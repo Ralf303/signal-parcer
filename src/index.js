@@ -38,7 +38,7 @@ export const start = async () => {
 
       if (signal && isWeekday && isWithinTimeFrame) {
         const text = `НОВЫЙ СИГНАЛ:\n\n${signal}`;
-        await bot.telegram.sendMessage("1157591765", data);
+        await bot.telegram.sendMessage("1157591765", JSON.stringify(data));
 
         const users = await getVerifieUsers();
         for (const user of users) {
