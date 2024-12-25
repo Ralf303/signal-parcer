@@ -1,11 +1,12 @@
 import { Composer } from "telegraf";
 import { Keyboard } from "telegram-keyboard";
 import { getUser } from "../db/functions.js";
+import text from "../../text.js";
 
 const startKeyboard = Keyboard.make([
-  ["📝 Подписаться на сигналы"],
-  ["📝 Отписаться от сигналов"],
-  ["📝 Пройти верефикацию"],
+  [text.buttons.subscribe],
+  [text.buttons.unsubscribe],
+  [text.buttons.verify],
 ]);
 
 const userRouter = new Composer();
@@ -24,21 +25,21 @@ userRouter.start(async (ctx) => {
   }
 });
 
-userRouter.hears("📝 Подписаться на сигналы", async (ctx) => {
+userRouter.hears(text.buttons.subscribe, async (ctx) => {
   try {
     const user = await getUser(ctx.from.id, ctx.from.username);
 
     if (user.isSubscribe) {
-      await ctx.reply("Вы уже подписаны на рассылку");
+      await ctx.reply(text.alreadySubscribed);
       return;
     }
 
     if (!user.isVerified) {
-      await ctx.reply("Для подписки на рассылку необходимо пройти верефикацию");
+      await ctx.reply(text.needVerif);
       return;
     }
 
-    await ctx.reply("Вы подписались на рассылку");
+    await ctx.reply(text.subscribed);
     user.isSubscribe = true;
     await user.save();
   } catch (error) {
@@ -46,16 +47,16 @@ userRouter.hears("📝 Подписаться на сигналы", async (ctx) 
   }
 });
 
-userRouter.hears("📝 Отписаться от сигналов", async (ctx) => {
+userRouter.hears(text.buttons.unsubscribe, async (ctx) => {
   try {
     const user = await getUser(ctx.from.id, ctx.from.username);
 
     if (!user.isVerified) {
-      await ctx.reply("Для начала необходимо пройти верефикацию");
+      await ctx.reply(text.needVerif);
       return;
     }
 
-    await ctx.reply("Вы отписались от рассылки");
+    await ctx.reply(text.unverif);
     user.isSubscribe = false;
     await user.save();
   } catch (error) {
@@ -63,7 +64,7 @@ userRouter.hears("📝 Отписаться от сигналов", async (ctx) 
   }
 });
 
-userRouter.hears("📝 Пройти верефикацию", async (ctx) => {
+userRouter.hears(text.buttons.verify, async (ctx) => {
   try {
     await ctx.scene.enter("verif");
   } catch (error) {

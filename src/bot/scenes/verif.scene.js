@@ -1,11 +1,12 @@
 import { Scenes } from "telegraf";
 import { message } from "telegraf/filters";
+import text from "../../../text";
 
 const verifScene = new Scenes.BaseScene("verif");
 
 verifScene.enter(async (ctx) => {
   try {
-    await ctx.reply("Введите код подтверждения");
+    await ctx.reply(text.enterCode);
   } catch (error) {
     console.log(error);
   }

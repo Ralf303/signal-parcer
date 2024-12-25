@@ -38,7 +38,7 @@ async function verifyUser(chatId) {
 
 async function getVerifieUsers() {
   try {
-    const users = await User.findAll({ where: { isVerified: true } });
+    const users = await User.findAll({ where: { isSubscribe: true } });
     return users;
   } catch (error) {
     console.error("Error sending message to all users:", error);
