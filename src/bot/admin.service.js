@@ -1,5 +1,12 @@
 import { Composer } from "telegraf";
 import { getUser } from "../db/functions.js";
+import { Keyboard } from "telegram-keyboard";
+import text from "../../text.js";
+
+const startKeyboard = Keyboard.make([
+  [text.buttons.subscribe],
+  [text.buttons.unsubscribe],
+]);
 
 const adminService = new Composer();
 
@@ -16,7 +23,6 @@ adminService.action("cancel", async (ctx) => {
 });
 
 adminService.action(/verify:(.*):(.*)/, async (ctx) => {
-  const code = ctx.match[1];
   const userId = ctx.match[2];
 
   const user = await getUser(userId);
@@ -30,6 +36,10 @@ adminService.action(/verify:(.*):(.*)/, async (ctx) => {
 
   await ctx.reply("User verified");
   await ctx.deleteMessage();
+  await ctx.telegram.sendMessage(
+    userId,
+    "Ваша заявка одобрена. Вы можете начать использовать бота, жми /start чтобы обновить кнопки"
+  );
 });
 
 export default adminService;

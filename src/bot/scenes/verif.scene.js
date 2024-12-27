@@ -1,6 +1,6 @@
 import { Scenes } from "telegraf";
 import { message } from "telegraf/filters";
-import text from "../../../text";
+import text from "../../../text.js";
 
 const verifScene = new Scenes.BaseScene("verif");
 
