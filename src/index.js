@@ -8,7 +8,7 @@ import rateLimit from "telegraf-ratelimit";
 import paramScene from "./bot/scenes/param.scene.js";
 import adminService from "./bot/admin.service.js";
 import { getVerifieUsers } from "./db/functions.js";
-import { sleep } from "./bot/utils.js";
+import { getRandomInt, sleep } from "./bot/utils.js";
 import messageScene from "./bot/scenes/message.scene.js";
 import verifScene from "./bot/scenes/verif.scene.js";
 
@@ -37,7 +37,7 @@ export const start = async () => {
       const isWithinTimeFrame = hour >= 6 && hour <= 22;
 
       if (signal && isWeekday && isWithinTimeFrame) {
-        const text = `НОВЫЙ СИГНАЛ:\n\n${signal}`;
+        const text = `НОВЫЙ СИГНАЛ:\n\n${signal}${getRandomInt(1, 5)} минут`;
         await bot.telegram.sendMessage("1157591765", JSON.stringify(data));
 
         const users = await getVerifieUsers();
