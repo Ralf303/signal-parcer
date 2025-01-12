@@ -14,7 +14,7 @@ const verifyKeyboard = Keyboard.make([
 ]);
 
 const inlineKeyboard = Keyboard.inline([
-  [Key.url("ПОДПИСАТЬСЯ", "tg://settings")],
+  [Key.url("ПОДПИСАТЬСЯ", "https://t.me/+JowyhBRA7U84YmY0")],
   ["✅ПОДПИСАЛСЯ"],
 ]);
 
@@ -51,7 +51,7 @@ userRouter.action("✅ПОДПИСАЛСЯ", async (ctx) => {
 userRouter.action("✅Я УЖЕ ЗАРЕГИСТРИРОВАН ", async (ctx) => {
   try {
     await ctx.reply(`🔗Вот ваша ссылка : 
-Торговый бот для валютных пар - https://t.me/+JjOnwUyDHhpkNzMx`);
+Торговый бот для валютных пар - https://t.me/+1hLL6zDY1-o2ZTEy`);
     await ctx.deleteMessage();
   } catch (error) {
     console.log(error);
