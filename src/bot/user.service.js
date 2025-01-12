@@ -1,5 +1,5 @@
 import { Composer } from "telegraf";
-import { Keyboard } from "telegram-keyboard";
+import { Key, Keyboard } from "telegram-keyboard";
 import { getUser } from "../db/functions.js";
 import text from "../../text.js";
 
@@ -13,132 +13,139 @@ const verifyKeyboard = Keyboard.make([
   [text.buttons.instruction],
 ]);
 
+const inlineKeyboard = Keyboard.inline([
+  [Key.url("ПОДПИСАТЬСЯ", "tg://settings")],
+  ["✅ПОДПИСАЛСЯ"],
+]);
+
+const registInlineKeyboard = Keyboard.inline([
+  [Key.url("ЗАРЕГЕСТРИРОВАТЬСЯ", "https://bit.ly/BINARIUM_RU")],
+  ["✅Я УЖЕ ЗАРЕГИСТРИРОВАН "],
+]);
+
 const userRouter = new Composer();
 
 userRouter.start(async (ctx) => {
   try {
-    const user = await getUser(ctx.from.id, ctx.from.username);
-
-    if (!user.isVerified) {
-      return await ctx.reply(
-        `Приветствую,${ctx.from.first_name}!👋🏻
-
-Я RT AI TRADE BOT - 🤖 Искуственный интеллект который анализирует рынок с помощью более чем 300 индикаторов и дает сигналы на рынке бинарных опционов проходимость которых более 85%
-
-Для получения сигналов выполните следующие пункты:
-1️⃣ Пройдите регистрацию по данной ссылке👇
-
-https://bin.gd/lp/sure-start/?partner_id=p48422p145496pf7a5
-
-2️⃣ Пополните свой депозит 
-
-3️⃣ Нажмите кнопку “ПРОВЕРИТЬ ID”.Далее отправьте свой ID акаунта в чат
-
-4️⃣ Ожидайте подтверждения вашей заявки`,
-        verifyKeyboard.reply()
-      );
-    }
-
     await ctx.reply(
-      `С возвращением, ${ctx.from.first_name}\n\nПодписка на сигналы: ${
-        user.isSubscribe ? "✅" : "❌"
-      }\nВерефикация: ${user.isVerified ? "✅" : "❌"}`,
-      startKeyboard.reply()
+      `Привет! Чтобы получить доступ к торговому боту RT AI TRADE,нужно быть подписанным на мой канал`,
+      inlineKeyboard
     );
   } catch (error) {
     console.log(error);
   }
 });
 
-userRouter.hears(text.buttons.subscribe, async (ctx) => {
+userRouter.action("✅ПОДПИСАЛСЯ", async (ctx) => {
   try {
-    const user = await getUser(ctx.from.id, ctx.from.username);
-
-    if (user.isSubscribe) {
-      await ctx.reply(text.alreadySubscribed);
-      return;
-    }
-
-    if (!user.isVerified) {
-      await ctx.replyWithHTML(text.needVerif);
-      return;
-    }
-
-    await ctx.replyWithHTML(text.subscribed);
-    user.isSubscribe = true;
-    await user.save();
+    await ctx.reply(
+      `⚡️Торгуем тут: https://bit.ly/BINARIUM_RU`,
+      registInlineKeyboard
+    );
+    await ctx.deleteMessage();
   } catch (error) {
     console.log(error);
   }
 });
 
-userRouter.hears(text.buttons.unsubscribe, async (ctx) => {
+userRouter.action("✅Я УЖЕ ЗАРЕГИСТРИРОВАН ", async (ctx) => {
   try {
-    const user = await getUser(ctx.from.id, ctx.from.username);
-
-    if (!user.isVerified) {
-      await ctx.replyWithHTML(text.needVerif);
-      return;
-    }
-
-    await ctx.replyWithHTML(text.unverif);
-    user.isSubscribe = false;
-    await user.save();
+    await ctx.reply(`🔗Вот ваша ссылка : 
+Торговый бот для валютных пар - https://t.me/+JjOnwUyDHhpkNzMx`);
+    await ctx.deleteMessage();
   } catch (error) {
     console.log(error);
   }
 });
+// userRouter.hears(text.buttons.subscribe, async (ctx) => {
+//   try {
+//     const user = await getUser(ctx.from.id, ctx.from.username);
 
-userRouter.hears(text.buttons.verify, async (ctx) => {
-  try {
-    await ctx.scene.enter("verif");
-  } catch (error) {
-    console.log(error);
-  }
-});
+//     if (user.isSubscribe) {
+//       await ctx.reply(text.alreadySubscribed);
+//       return;
+//     }
 
-userRouter.hears(text.buttons.instruction, async (ctx) => {
-  try {
-    await ctx.replyWithMediaGroup([
-      {
-        type: "photo",
-        media: { source: "./img/photo1.jpg" },
-        caption: `Для начала вам потребуется телефон или компьютер и хорошее интернет соединение,я лично предпочитаю компьютер,но когда не дома торгую с телефона
-Начнем!💰
+//     if (!user.isVerified) {
+//       await ctx.replyWithHTML(text.needVerif);
+//       return;
+//     }
 
-1️⃣Торговая платформа bit.ly/BINARIUM_RU
+//     await ctx.replyWithHTML(text.subscribed);
+//     user.isSubscribe = true;
+//     await user.save();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
-Переходим на сайт брокера и регистрируем аккаунт👇
+// userRouter.hears(text.buttons.unsubscribe, async (ctx) => {
+//   try {
+//     const user = await getUser(ctx.from.id, ctx.from.username);
 
-bit.ly/BINARIUM_RU
+//     if (!user.isVerified) {
+//       await ctx.replyWithHTML(text.needVerif);
+//       return;
+//     }
 
-Вводим свою почту,придумываем пароль и выбираем валюту в которой будем пополнять баланс.В моем случае - Российский рубль:
+//     await ctx.replyWithHTML(text.unverif);
+//     user.isSubscribe = false;
+//     await user.save();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
-2️⃣Далее вводим своё настоящее имя и фамилию (чтобы не было проблем с выводом) и номер вашего телефона.
+// userRouter.hears(text.buttons.verify, async (ctx) => {
+//   try {
+//     await ctx.scene.enter("verif");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
-3️⃣Подтверждаем почту (на вашу почту придет письмо по которому нужно перейти) и всё, ваш аккаунт готов к работе!💪🏼 
+// userRouter.hears(text.buttons.instruction, async (ctx) => {
+//   try {
+//     await ctx.replyWithMediaGroup([
+//       {
+//         type: "photo",
+//         media: { source: "./img/photo1.jpg" },
+//         caption: `Для начала вам потребуется телефон или компьютер и хорошее интернет соединение,я лично предпочитаю компьютер,но когда не дома торгую с телефона
+// Начнем!💰
 
-4️⃣Осталось только пополнить баланс и отправить свой ID акаунта боту на проверку
+// 1️⃣Торговая платформа bit.ly/BINARIUM_RU
 
-<em>Пополнить баланс можно любым удобным способом будь это карта или крипта</em>
+// Переходим на сайт брокера и регистрируем аккаунт👇
 
-5️⃣Находим свой ID акаунта и запоминаем,далее переходим в бота и нажимаем кнопку «ПРОВЕРИТЬ ID” и отправляем его боту
+// bit.ly/BINARIUM_RU
 
-<em>Далее ожидаем подтверждения от бота и получаем сигналы✅</em>`,
-        parse_mode: "HTML",
-      },
-      {
-        type: "photo",
-        media: { source: "./img/photo2.jpg" },
-      },
-      {
-        type: "photo",
-        media: { source: "./img/photo3.jpg" },
-      },
-    ]);
-  } catch (error) {
-    console.log(error);
-  }
-});
+// Вводим свою почту,придумываем пароль и выбираем валюту в которой будем пополнять баланс.В моем случае - Российский рубль:
+
+// 2️⃣Далее вводим своё настоящее имя и фамилию (чтобы не было проблем с выводом) и номер вашего телефона.
+
+// 3️⃣Подтверждаем почту (на вашу почту придет письмо по которому нужно перейти) и всё, ваш аккаунт готов к работе!💪🏼
+
+// 4️⃣Осталось только пополнить баланс и отправить свой ID акаунта боту на проверку
+
+// <em>Пополнить баланс можно любым удобным способом будь это карта или крипта</em>
+
+// 5️⃣Находим свой ID акаунта и запоминаем,далее переходим в бота и нажимаем кнопку «ПРОВЕРИТЬ ID” и отправляем его боту
+
+// <em>Далее ожидаем подтверждения от бота и получаем сигналы✅</em>`,
+//         parse_mode: "HTML",
+//       },
+//       {
+//         type: "photo",
+//         media: { source: "./img/photo2.jpg" },
+//       },
+//       {
+//         type: "photo",
+//         media: { source: "./img/photo3.jpg" },
+//       },
+//     ]);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 export default userRouter;
